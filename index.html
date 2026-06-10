@@ -2,288 +2,319 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Arvio - Sistem Penghitung Keuangan Pribadi</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&family=JetBrains+Mono:wght=400;500;700&display=swap');
+        
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent; /* Menghapus warna kedipan biru saat tap di HP */
         }
         .mono-font {
             font-family: 'JetBrains Mono', monospace;
         }
-        /* Custom Scrollbar for better UI */
+        /* Custom Scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
+            height: 4px;
         }
         ::-webkit-scrollbar-track {
             background: #0f172a;
         }
         ::-webkit-scrollbar-thumb {
             background: #334155;
-            border-radius: 4px;
+            border-radius: 9999px;
         }
         ::-webkit-scrollbar-thumb:hover {
             background: #475569;
         }
+        /* IOS smooth scroll behavior */
+        .smooth-scroll {
+            -webkit-overflow-scrolling: touch;
+        }
+        /* Animasi Bottom Sheet untuk HP */
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+        @media (max-width: 640px) {
+            .bottom-sheet {
+                animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+        }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen pb-12">
+<body class="bg-slate-900 text-slate-100 min-h-screen pb-16 md:pb-12 smooth-scroll">
 
     <!-- Header / Navbar -->
-    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-30">
-        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="relative w-10 h-10 rounded-xl overflow-hidden border border-slate-700 bg-slate-800 flex items-center justify-center shrink-0">
-                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhtviYM0s-PZBuJ5dcWrH-nQ9cQl87-nh3zFwNAmmCCk0_U56cGnRQWL9tVWuNivMFAMMrVj5vDqsCQh4bw4tdHulVLV2BRQhvvmh-WpgGeGnVog_5cCJRqD3cW53Qn7AECXJW909a594pqrDhfv8HThTzWAQgBtX74AbVCbzIbgYpy6iSYAMxoqpL0tvQ/s1600/Arvio%20Logo.jpeg" 
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-30 px-3 sm:px-4">
+        <div class="max-w-6xl mx-auto h-16 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                <div class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden border border-slate-700 bg-slate-800 flex items-center justify-center shrink-0">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjFw4Zu8L-BDqRJtaMTFxNwM3F8-wjrkq7WHnIiHnZs0pTMLCCvvdjUdv341abJB71FcrQrxyVsfqSgdd0p7ryE1P4xjhGDLO3AXJqr0pVzcQqz6Fmfm70L8uYo7Ci7QlU4GUgWpjzHgdGV1z141pQIFc70rBAK9-rxkrJXx1G5aulIeOs6dbBMVfJR9u8/s1280/Arvio%20Logo.jpeg" 
                          alt="Arvio Logo" 
                          class="w-full h-full object-cover"
                          onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/30 w-full h-full flex items-center justify-center\'><i data-lucide=\'wallet\' class=\'w-5 h-5 text-emerald-400\'></i></div>'; lucide.createIcons();">
                 </div>
-                <div>
-                    <h1 class="text-lg font-bold tracking-tight text-white">Arvio</h1>
-                    <p class="text-xs text-slate-400">Sistem Keuangan Pribadi Otomatis</p>
+                <div class="truncate">
+                    <h1 class="text-base sm:text-lg font-bold tracking-tight text-white leading-tight">Arvio</h1>
+                    <p class="text-[10px] sm:text-xs text-slate-400 truncate">Sistem Keuangan Pribadi</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
-                <button onclick="openConfigModal()" class="flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-sm font-medium transition-colors border border-slate-700">
-                    <i data-lucide="calendar" class="w-4 h-4 text-emerald-400"></i>
-                    <span>Atur Siklus</span>
+            <div class="flex items-center gap-1.5 shrink-0">
+                <button id="btn-atur-siklus" onclick="openConfigModal()" class="flex items-center gap-1 px-2.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs sm:text-sm font-medium transition-all border border-slate-700 duration-300">
+                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-emerald-400"></i>
+                    <span class="hidden min-[400px]:inline">Atur Siklus</span>
+                    <span class="inline min-[400px]:hidden">Siklus</span>
                 </button>
-                <button onclick="resetData()" class="flex items-center gap-1.5 px-3.5 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg text-sm font-medium transition-colors border border-rose-500/20">
-                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                    <span class="hidden sm:inline">Reset</span>
+                <button onclick="resetData()" class="flex items-center gap-1 px-2.5 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-xl text-xs sm:text-sm font-medium transition-colors border border-rose-500/20">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                    <span class="hidden min-[400px]:inline">Reset</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 mt-6">
+    <main class="max-w-6xl mx-auto px-3 sm:px-4 mt-4 sm:mt-6">
         
         <!-- Target Reached Warning Banner -->
-        <div id="target-reached-banner" class="hidden mb-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-between gap-4 transition-all duration-300">
+        <div id="target-reached-banner" class="hidden mb-4 sm:mb-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-between gap-4 transition-all duration-300">
             <div class="flex items-center gap-3">
-                <div class="p-2 bg-amber-500/20 text-amber-400 rounded-xl">
-                    <i data-lucide="award" class="w-6 h-6"></i>
+                <div class="p-2 bg-amber-500/20 text-amber-400 rounded-xl shrink-0">
+                    <i data-lucide="award" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                 </div>
                 <div>
-                    <h4 class="font-extrabold text-amber-400 text-sm">Target Hari Tercapai!</h4>
-                    <p class="text-xs text-slate-300" id="target-reached-message">Sudah tercapai target hari siklus Anda.</p>
+                    <h4 class="font-extrabold text-amber-400 text-xs sm:text-sm">Target Hari Tercapai!</h4>
+                    <p class="text-[10px] sm:text-xs text-slate-300" id="target-reached-message">Sudah tercapai target hari siklus Anda.</p>
                 </div>
             </div>
-            <button onclick="dismissTargetBanner()" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-200 transition-colors">
-                <i data-lucide="x" class="w-5 h-5"></i>
+            <button onclick="dismissTargetBanner()" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-200 transition-colors shrink-0">
+                <i data-lucide="x" class="w-4 h-4 sm:w-5 sm:h-5"></i>
             </button>
         </div>
 
         <!-- Live Clock Widget -->
-        <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-slate-800/20 border border-slate-800 rounded-2xl gap-3">
-            <div class="flex items-center gap-2.5">
-                <div class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></div>
-                <span class="text-xs text-slate-400 font-medium tracking-wide uppercase">WAKTU NYATA SISTEM:</span>
-                <span id="live-time-string" class="text-sm font-bold text-slate-200 font-mono">--:--:--</span>
+        <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center p-3.5 bg-slate-800/20 border border-slate-800 rounded-2xl gap-2">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></div>
+                <span class="text-[10px] text-slate-400 font-medium tracking-wide uppercase shrink-0">SISTEM NYATA:</span>
+                <span id="live-time-string" class="text-xs sm:text-sm font-bold text-slate-200 font-mono">--:--:--</span>
             </div>
-            <div class="text-xs text-slate-400 flex items-center gap-1">
-                <i data-lucide="info" class="w-3.5 h-3.5 text-blue-400"></i>
-                <span>Siklus dimulai sejak: <span id="disp-start-date-info" class="font-semibold text-slate-200">--</span></span>
+            <div class="text-[10px] sm:text-xs text-slate-400 flex items-center gap-1">
+                <i data-lucide="info" class="w-3 h-3 text-blue-400"></i>
+                <span>Siklus sejak: <span id="disp-start-date-info" class="font-semibold text-slate-200">--</span></span>
             </div>
         </div>
 
-        <!-- Notification Banner / Toast Messages (Custom Modal style) -->
-        <div id="toast" class="hidden mb-6 p-4 rounded-xl border flex items-center justify-between transition-all duration-300">
-            <div class="flex items-center gap-3">
-                <div id="toast-icon-bg" class="p-2 rounded-lg">
-                    <i id="toast-icon" class="w-5 h-5"></i>
+        <!-- Notification Banner / Toast Messages -->
+        <div id="toast" class="hidden mb-4 sm:mb-6 p-3.5 rounded-xl border flex items-center justify-between gap-3 transition-all duration-300">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div id="toast-icon-bg" class="p-1.5 rounded-lg shrink-0">
+                    <i id="toast-icon" class="w-4 h-4"></i>
                 </div>
-                <div>
-                    <p id="toast-title" class="font-semibold text-sm"></p>
-                    <p id="toast-message" class="text-xs text-slate-400"></p>
+                <div class="truncate">
+                    <p id="toast-title" class="font-bold text-xs sm:text-sm leading-tight"></p>
+                    <p id="toast-message" class="text-[10px] sm:text-xs text-slate-400 truncate mt-0.5"></p>
                 </div>
             </div>
-            <button onclick="hideToast()" class="text-slate-400 hover:text-slate-200">
+            <button onclick="hideToast()" class="text-slate-400 hover:text-slate-200 shrink-0">
                 <i data-lucide="x" class="w-4 h-4"></i>
             </button>
         </div>
 
         <!-- Dashboard Stat Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 sm:mb-8">
             
             <!-- Card 1: Hari & Waktu -->
-            <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50 p-5 rounded-2xl relative overflow-hidden shadow-xl">
-                <div class="absolute -right-6 -bottom-6 opacity-5">
-                    <i data-lucide="calendar-check" class="w-32 h-32"></i>
+            <div onclick="showCycleHint('hari')" class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50 p-4 sm:p-5 rounded-2xl relative overflow-hidden shadow-xl cursor-pointer transition-all hover:scale-[1.01] hover:border-slate-600 active:scale-98 duration-200 group">
+                <div class="absolute -right-6 -bottom-6 opacity-5 pointer-events-none transition-transform group-hover:scale-110">
+                    <i data-lucide="calendar-check" class="w-24 h-24 sm:w-32 sm:h-32"></i>
                 </div>
-                <div class="flex justify-between items-start mb-4">
-                    <span class="text-xs font-semibold tracking-wider text-slate-400 uppercase">HARI JALAN NYATA</span>
-                    <span class="bg-blue-500/10 text-blue-400 px-2.5 py-1 rounded-full text-xs font-medium border border-blue-500/20 flex items-center gap-1">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">HARI JALAN NYATA</span>
+                    <span class="bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full text-[10px] font-medium border border-blue-500/20 flex items-center gap-1">
                         <span class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></span>
-                        Otomatis
+                        Auto
                     </span>
                 </div>
-                <h3 class="text-3xl font-extrabold text-white tracking-tight mb-1" id="disp-hari-progress">Hari 1/30</h3>
-                <p class="text-sm text-slate-400 flex items-center gap-1.5" id="disp-sisa-hari">
-                    <i data-lucide="clock" class="w-4 h-4 text-emerald-400"></i> Sisa 29 hari lagi
+                <h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-1" id="disp-hari-progress">Hari 1/30</h3>
+                <p class="text-xs text-slate-400 flex items-center gap-1" id="disp-sisa-hari">
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-emerald-400"></i> Sisa 29 hari lagi
                 </p>
-                <!-- Progress Bar -->
-                <div class="w-full bg-slate-700/50 rounded-full h-2.5 mt-5 overflow-hidden">
-                    <div id="bar-hari" class="bg-blue-500 h-2.5 rounded-full transition-all duration-500" style="width: 3.3%"></div>
+                <div class="w-full bg-slate-700/50 rounded-full h-2 mt-4 overflow-hidden">
+                    <div id="bar-hari" class="bg-blue-500 h-2 rounded-full transition-all duration-500" style="width: 3.3%"></div>
                 </div>
             </div>
 
             <!-- Card 2: Saldo / Total Uang -->
-            <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50 p-5 rounded-2xl relative overflow-hidden shadow-xl">
-                <div class="absolute -right-6 -bottom-6 opacity-5">
-                    <i data-lucide="banknote" class="w-32 h-32"></i>
+            <div onclick="showCycleHint('saldo')" class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50 p-4 sm:p-5 rounded-2xl relative overflow-hidden shadow-xl cursor-pointer transition-all hover:scale-[1.01] hover:border-slate-600 active:scale-98 duration-200 group">
+                <div class="absolute -right-6 -bottom-6 opacity-5 pointer-events-none transition-transform group-hover:scale-110">
+                    <i data-lucide="banknote" class="w-24 h-24 sm:w-32 sm:h-32"></i>
                 </div>
-                <div class="flex justify-between items-start mb-4">
-                    <span class="text-xs font-semibold tracking-wider text-slate-400 uppercase">SALDO SAAT INI</span>
-                    <span class="bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full text-xs font-medium border border-emerald-500/20">Dompet</span>
+                <div class="flex justify-between items-start mb-3">
+                    <span class="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">SALDO SAAT INI</span>
+                    <span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full text-[10px] font-medium border border-emerald-500/20">Dompet</span>
                 </div>
-                <h3 class="text-3xl font-extrabold text-white tracking-tight mb-1" id="disp-total-uang">Rp1.000.000</h3>
-                <p class="text-sm text-slate-400 flex items-center gap-1.5">
-                    <i data-lucide="info" class="w-4 h-4 text-emerald-400"></i> Siap dialokasikan
+                <h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-1 truncate" id="disp-total-uang">Rp1.000.000</h3>
+                <p class="text-xs text-slate-400 flex items-center gap-1">
+                    <i data-lucide="info" class="w-3.5 h-3.5 text-emerald-400"></i> Siap dialokasikan
                 </p>
-                <div class="flex gap-4 mt-5 pt-3 border-t border-slate-700/30 text-xs">
-                    <div>
-                        <p class="text-slate-400">Total Masuk</p>
-                        <p class="font-semibold text-emerald-400" id="disp-total-pemasukan">Rp0</p>
+                <div class="flex gap-4 mt-4 pt-3 border-t border-slate-700/30 text-[11px]">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-slate-400 truncate">Total Masuk</p>
+                        <p class="font-bold text-emerald-400 truncate font-mono" id="disp-total-pemasukan">Rp0</p>
                     </div>
-                    <div class="border-l border-slate-700/50 pl-4">
-                        <p class="text-slate-400">Total Keluar</p>
-                        <p class="font-semibold text-rose-400" id="disp-total-pengeluaran">Rp0</p>
+                    <div class="border-l border-slate-700/50 pl-4 min-w-0 flex-1">
+                        <p class="text-slate-400 truncate">Total Keluar</p>
+                        <p class="font-bold text-rose-400 truncate font-mono" id="disp-total-pengeluaran">Rp0</p>
                     </div>
                 </div>
             </div>
 
             <!-- Card 3: Tabungan Target -->
-            <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50 p-5 rounded-2xl relative overflow-hidden shadow-xl">
-                <div class="absolute -right-6 -bottom-6 opacity-5">
-                    <i data-lucide="piggy-bank" class="w-32 h-32"></i>
+            <div onclick="showCycleHint('target')" class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50 p-4 sm:p-5 rounded-2xl relative overflow-hidden shadow-xl cursor-pointer transition-all hover:scale-[1.01] hover:border-slate-600 active:scale-98 duration-200 group">
+                <div class="absolute -right-6 -bottom-6 opacity-5 pointer-events-none transition-transform group-hover:scale-110">
+                    <i data-lucide="piggy-bank" class="w-24 h-24 sm:w-32 sm:h-32"></i>
                 </div>
-                <div class="flex justify-between items-start mb-4">
-                    <span class="text-xs font-semibold tracking-wider text-slate-400 uppercase">TARGET TABUNGAN</span>
-                    <span class="bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded-full text-xs font-medium border border-amber-500/20" id="disp-tabungan-persen">0%</span>
+                <div class="flex justify-between items-start mb-3">
+                    <span class="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">TARGET TABUNGAN</span>
+                    <span class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full text-[10px] font-medium border border-amber-500/20" id="disp-tabungan-persen">0%</span>
                 </div>
-                <h3 class="text-3xl font-extrabold text-white tracking-tight mb-1" id="disp-tabungan-terkumpul">Rp0</h3>
-                <p class="text-xs text-slate-400 mb-4" id="disp-target-tabungan">Target: Rp500.000</p>
-                
-                <!-- Progress Bar Tabungan -->
-                <div class="w-full bg-slate-700/50 rounded-full h-2 mt-2 overflow-hidden mb-3">
-                    <div id="bar-tabungan" class="bg-amber-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                <h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-1 truncate" id="disp-tabungan-terkumpul">Rp0</h3>
+                <p class="text-xs text-slate-400 mb-3 truncate" id="disp-target-tabungan">Target: Rp500.000</p>
+                <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2 overflow-hidden mb-3">
+                    <div id="bar-tabungan" class="bg-amber-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
                 </div>
-                
-                <p class="text-xs text-slate-300 flex justify-between">
-                    <span>Kurang target:</span>
-                    <span class="font-bold text-amber-400" id="disp-kurang-target">Rp500.000</span>
+                <p class="text-[10px] text-slate-300 flex justify-between gap-1">
+                    <span class="truncate">Kurang target:</span>
+                    <span class="font-bold text-amber-400 shrink-0 font-mono" id="disp-kurang-target">Rp500.000</span>
                 </p>
             </div>
         </div>
 
         <!-- Main Workspace Layout -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             
             <!-- Left & Middle Section: Interactive Actions + Category Lists -->
-            <div class="lg:col-span-2 space-y-6">
+            <div class="lg:col-span-2 space-y-4 sm:space-y-6">
                 
                 <!-- Hitung Pengeluaran dan Pemasukan -->
-                <div class="bg-slate-800/40 border border-slate-700/40 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
-                    <div class="flex items-center gap-3 mb-6 border-b border-slate-700/50 pb-4">
-                        <div class="bg-indigo-950 p-2 rounded-xl text-indigo-400 border border-indigo-500/30">
-                            <i data-lucide="calculator" class="w-6 h-6"></i>
+                <div class="bg-slate-800/40 border border-slate-700/40 rounded-2xl p-4 sm:p-6 shadow-xl backdrop-blur-sm">
+                    <div class="flex items-center gap-3 mb-4 sm:mb-6 border-b border-slate-700/50 pb-3 sm:pb-4">
+                        <div class="bg-indigo-950 p-2 rounded-xl text-indigo-400 border border-indigo-500/30 shrink-0">
+                            <i data-lucide="calculator" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         </div>
-                        <div>
-                            <h4 class="font-extrabold text-lg text-white">Hitung Pengeluaran dan Pemasukan</h4>
-                            <p class="text-xs text-slate-400">Pilih salah satu tombol di bawah untuk mencatat transaksi baru Anda</p>
+                        <div class="min-w-0">
+                            <h4 class="font-extrabold text-sm sm:text-lg text-white leading-tight">Hitung Pengeluaran & Pemasukan</h4>
+                            <p class="text-[10px] sm:text-xs text-slate-400 truncate">Pilih aksi di bawah untuk mencatat keuangan baru</p>
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <!-- Grid Aksi Tombol yang Dioptimalkan untuk HP agar tidak menumpuk vertikal -->
+                    <div class="grid grid-cols-3 gap-2 sm:gap-4">
                         <!-- Action 1: Simpan Tabungan -->
-                        <button onclick="openActionModal('simpan')" class="flex flex-col items-center justify-center text-center p-5 bg-gradient-to-b from-slate-800/80 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-slate-100 rounded-2xl transition-all border border-slate-700/40 group relative overflow-hidden">
-                            <div class="absolute inset-x-0 bottom-0 h-1 bg-amber-500 opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                            <div class="p-3 bg-amber-500/10 text-amber-400 rounded-2xl mb-3 border border-amber-500/20">
-                                <i data-lucide="piggy-bank" class="w-6 h-6"></i>
+                        <button onclick="openActionModal('simpan')" class="flex flex-col items-center justify-between text-center p-2.5 sm:p-5 bg-gradient-to-b from-slate-800/80 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-slate-100 rounded-xl transition-all border border-slate-700/40 group relative overflow-hidden active:scale-95 duration-200">
+                            <div class="absolute inset-x-0 bottom-0 h-0.5 sm:h-1 bg-amber-500 opacity-60 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="p-1.5 sm:p-3 bg-amber-500/10 text-amber-400 rounded-lg sm:rounded-2xl mb-1.5 sm:mb-3 border border-amber-500/20">
+                                <i data-lucide="piggy-bank" class="w-4 h-4 sm:w-6 sm:h-6"></i>
                             </div>
-                            <span class="text-sm font-bold text-white mb-1">Simpan Tabungan</span>
-                            <span class="text-[11px] text-slate-400 leading-tight">Pindahkan uang dompet ke target tabungan</span>
+                            <span class="text-[10px] sm:text-sm font-bold text-white mb-0.5 sm:mb-1 line-clamp-1">Menabung</span>
+                            <span class="hidden sm:block text-[10px] text-slate-400 leading-tight">Alokasikan target tabungan</span>
                         </button>
 
                         <!-- Action 2: Catat Pengeluaran -->
-                        <button onclick="openActionModal('keluar')" class="flex flex-col items-center justify-center text-center p-5 bg-gradient-to-b from-slate-800/80 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-slate-100 rounded-2xl transition-all border border-slate-700/40 group relative overflow-hidden">
-                            <div class="absolute inset-x-0 bottom-0 h-1 bg-rose-500 opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                            <div class="p-3 bg-rose-500/10 text-rose-400 rounded-2xl mb-3 border border-rose-500/20">
-                                <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                        <button onclick="openActionModal('keluar')" class="flex flex-col items-center justify-between text-center p-2.5 sm:p-5 bg-gradient-to-b from-slate-800/80 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-slate-100 rounded-xl transition-all border border-slate-700/40 group relative overflow-hidden active:scale-95 duration-200">
+                            <div class="absolute inset-x-0 bottom-0 h-0.5 sm:h-1 bg-rose-500 opacity-60 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="p-1.5 sm:p-3 bg-rose-500/10 text-rose-400 rounded-lg sm:rounded-2xl mb-1.5 sm:mb-3 border border-rose-500/20">
+                                <i data-lucide="shopping-bag" class="w-4 h-4 sm:w-6 sm:h-6"></i>
                             </div>
-                            <span class="text-sm font-bold text-white mb-1">Catat Keluar</span>
-                            <span class="text-[11px] text-slate-400 leading-tight">Kurangi saldo utama untuk belanja atau kebutuhan</span>
+                            <span class="text-[10px] sm:text-sm font-bold text-white mb-0.5 sm:mb-1 line-clamp-1">Keluar</span>
+                            <span class="hidden sm:block text-[10px] text-slate-400 leading-tight">Kurangi saldo untuk kebutuhan</span>
                         </button>
 
                         <!-- Action 3: Catat Pemasukan -->
-                        <button onclick="openActionModal('masuk')" class="flex flex-col items-center justify-center text-center p-5 bg-gradient-to-b from-slate-800/80 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-slate-100 rounded-2xl transition-all border border-slate-700/40 group relative overflow-hidden">
-                            <div class="absolute inset-x-0 bottom-0 h-1 bg-emerald-500 opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                            <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-2xl mb-3 border border-emerald-500/20">
-                                <i data-lucide="plus-circle" class="w-6 h-6"></i>
+                        <button onclick="openActionModal('masuk')" class="flex flex-col items-center justify-between text-center p-2.5 sm:p-5 bg-gradient-to-b from-slate-800/80 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-slate-100 rounded-xl transition-all border border-slate-700/40 group relative overflow-hidden active:scale-95 duration-200">
+                            <div class="absolute inset-x-0 bottom-0 h-0.5 sm:h-1 bg-emerald-500 opacity-60 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="p-1.5 sm:p-3 bg-emerald-500/10 text-emerald-400 rounded-lg sm:rounded-2xl mb-1.5 sm:mb-3 border border-emerald-500/20">
+                                <i data-lucide="plus-circle" class="w-4 h-4 sm:w-6 sm:h-6"></i>
                             </div>
-                            <span class="text-sm font-bold text-white mb-1">Catat Masuk</span>
-                            <span class="text-[11px] text-slate-400 leading-tight">Tambahkan pemasukan baru ke dompet utama</span>
+                            <span class="text-[10px] sm:text-sm font-bold text-white mb-0.5 sm:mb-1 line-clamp-1">Masuk</span>
+                            <span class="hidden sm:block text-[10px] text-slate-400 leading-tight">Tambah pemasukan dompet</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Category Summaries (Rincian) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     
                     <!-- Rincian Pemasukan -->
-                    <div class="bg-slate-800/40 border border-slate-700/30 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
-                        <div class="flex justify-between items-center mb-4 border-b border-slate-700/50 pb-3">
-                            <h4 class="font-bold text-white flex items-center gap-2">
-                                <i data-lucide="trending-up" class="text-emerald-400 w-5 h-5"></i>
+                    <div class="bg-slate-800/40 border border-slate-700/30 rounded-2xl p-4 sm:p-5 shadow-lg backdrop-blur-sm">
+                        <div class="flex justify-between items-center mb-3.5 border-b border-slate-700/50 pb-2.5">
+                            <h4 class="font-bold text-sm sm:text-base text-white flex items-center gap-2">
+                                <i data-lucide="trending-up" class="text-emerald-400 w-4.5 h-4.5"></i>
                                 <span>Rincian Pemasukan</span>
                             </h4>
-                            <span class="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20" id="pemasukan-count">0 Kategori</span>
+                            <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20" id="pemasukan-count">0 Kategori</span>
                         </div>
-                        <ul id="list-pemasukan" class="space-y-3 max-h-[220px] overflow-y-auto pr-1">
+                        <ul id="list-pemasukan" class="space-y-2.5 max-h-[180px] sm:max-h-[220px] overflow-y-auto pr-0.5 smooth-scroll">
                             <!-- Populated by JS -->
                         </ul>
                     </div>
 
                     <!-- Rincian Pengeluaran -->
-                    <div class="bg-slate-800/40 border border-slate-700/30 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
-                        <div class="flex justify-between items-center mb-4 border-b border-slate-700/50 pb-3">
-                            <h4 class="font-bold text-white flex items-center gap-2">
-                                <i data-lucide="trending-down" class="text-rose-400 w-5 h-5"></i>
+                    <div class="bg-slate-800/40 border border-slate-700/30 rounded-2xl p-4 sm:p-5 shadow-lg backdrop-blur-sm">
+                        <div class="flex justify-between items-center mb-3.5 border-b border-slate-700/50 pb-2.5">
+                            <h4 class="font-bold text-sm sm:text-base text-white flex items-center gap-2">
+                                <i data-lucide="trending-down" class="text-rose-400 w-4.5 h-4.5"></i>
                                 <span>Rincian Pengeluaran</span>
                             </h4>
-                            <span class="text-xs bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded border border-rose-500/20" id="pengeluaran-count">0 Kategori</span>
+                            <span class="text-[10px] bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded border border-rose-500/20" id="pengeluaran-count">0 Kategori</span>
                         </div>
-                        <ul id="list-pengeluaran" class="space-y-3 max-h-[220px] overflow-y-auto pr-1">
+                        <ul id="list-pengeluaran" class="space-y-2.5 max-h-[180px] sm:max-h-[220px] overflow-y-auto pr-0.5 smooth-scroll">
                             <!-- Populated by JS -->
                         </ul>
                     </div>
                 </div>
 
                 <!-- Dashboard Chart (Comparison Bar) -->
-                <div class="bg-slate-800/40 border border-slate-700/30 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
-                    <h4 class="font-bold text-white flex items-center gap-2 mb-4">
-                        <i data-lucide="bar-chart-3" class="text-indigo-400 w-5 h-5"></i>
+                <div class="bg-slate-800/40 border border-slate-700/30 rounded-2xl p-4 sm:p-5 shadow-lg backdrop-blur-sm">
+                    <h4 class="font-bold text-sm sm:text-base text-white flex items-center gap-2 mb-3.5">
+                        <i data-lucide="bar-chart-3" class="text-indigo-400 w-4.5 h-4.5"></i>
                         <span>Rasio Aliran Kas</span>
                     </h4>
                     <div class="space-y-3">
-                        <div class="flex justify-between text-xs text-slate-400">
+                        <div class="flex justify-between text-[11px] text-slate-400">
                             <span>Perbandingan Masuk vs Keluar</span>
-                            <span id="chart-ratio-text">0% : 0%</span>
+                            <span id="chart-ratio-text" class="font-mono">0% : 0%</span>
                         </div>
-                        <div class="w-full bg-slate-800 rounded-full h-4 overflow-hidden flex">
+                        <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden flex">
                             <div id="chart-bar-in" class="bg-emerald-500 h-full transition-all duration-500" style="width: 50%"></div>
                             <div id="chart-bar-out" class="bg-rose-500 h-full transition-all duration-500" style="width: 50%"></div>
                         </div>
-                        <div class="flex gap-4 text-xs justify-center pt-2">
-                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 bg-emerald-500 rounded"></span> Pemasukan</span>
-                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 bg-rose-500 rounded"></span> Pengeluaran</span>
+                        <div class="flex gap-3 text-[10px] sm:text-xs justify-center pt-1.5">
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 bg-emerald-500 rounded-sm"></span> Pemasukan</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 bg-rose-500 rounded-sm"></span> Pengeluaran</span>
                         </div>
                     </div>
                 </div>
@@ -291,17 +322,18 @@
             </div>
 
             <!-- Right Column: Transactions History -->
-            <div class="space-y-6">
+            <div class="space-y-4 sm:space-y-6">
                 <!-- Riwayat Transaksi -->
-                <div class="bg-slate-800/40 border border-slate-700/30 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
-                    <div class="flex justify-between items-center mb-4 border-b border-slate-700/50 pb-3">
-                        <h4 class="font-bold text-white flex items-center gap-2">
-                            <i data-lucide="history" class="text-slate-300 w-5 h-5"></i>
+                <div class="bg-slate-800/40 border border-slate-700/30 rounded-2xl p-4 sm:p-5 shadow-lg backdrop-blur-sm">
+                    <div class="flex justify-between items-center mb-3.5 border-b border-slate-700/50 pb-2.5">
+                        <h4 class="font-bold text-sm sm:text-base text-white flex items-center gap-2">
+                            <i data-lucide="history" class="text-slate-300 w-4.5 h-4.5"></i>
                             <span>Riwayat Transaksi</span>
                         </h4>
-                        <span class="text-xs text-slate-400" id="history-count">0 data</span>
+                        <span class="text-[10px] sm:text-xs text-slate-400" id="history-count">0 data</span>
                     </div>
-                    <div id="list-riwayat" class="space-y-4 max-h-[480px] overflow-y-auto pr-1">
+                    <!-- Transaksi dibatasi max-height-nya di hp agar pas dalam jangkauan gulir layar -->
+                    <div id="list-riwayat" class="space-y-3 max-h-[350px] sm:max-h-[480px] overflow-y-auto pr-0.5 smooth-scroll">
                         <!-- Populated by JS -->
                     </div>
                 </div>
@@ -311,35 +343,39 @@
     </main>
 
     <!-- Modal 1: Config (Atur Target, Dompet & Waktu Siklus) -->
-    <div id="modal-config" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
-            <button onclick="closeConfigModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-200">
+    <!-- Catatan: Pada HP (< 640px) modal ini bertransformasi menjadi Bottom Sheet naik dari bawah layar -->
+    <div id="modal-config" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4 transition-all">
+        <div class="bg-slate-900 border-t sm:border border-slate-800 rounded-t-3xl sm:rounded-2xl w-full max-w-md p-6 shadow-2xl relative bottom-sheet max-h-[92vh] flex flex-col overflow-y-auto smooth-scroll">
+            <!-- Mobile Grab Handle Bar -->
+            <div class="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-4 sm:hidden"></div>
+            
+            <button onclick="closeConfigModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-200 p-1 bg-slate-800/50 sm:bg-transparent rounded-lg">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
-            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <h3 class="text-base sm:text-lg font-bold text-white mb-4 flex items-center gap-2">
                 <i data-lucide="sliders" class="text-emerald-400 w-5 h-5"></i>
                 <span>Atur Target & Waktu Siklus</span>
             </h3>
             <form onsubmit="saveConfig(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Tanggal Mulai Siklus (Hari ke-1)</label>
-                    <input type="date" id="cfg-start-date" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                    <p class="text-[10px] text-slate-500 mt-1">Ubah tanggal ini untuk memajukan hari secara dinamis.</p>
+                    <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Tanggal Mulai Siklus (Hari ke-1)</label>
+                    <input type="date" id="cfg-start-date" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-base sm:text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <p class="text-[9px] text-slate-500 mt-1">Ubah tanggal untuk memajukan hari secara dinamis.</p>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Target Hari (Durasi Siklus)</label>
-                    <input type="number" id="cfg-target-hari" required min="1" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Target Hari (Durasi Siklus)</label>
+                    <input type="number" id="cfg-target-hari" required min="1" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-base sm:text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Total Uang Awal (Rp)</label>
-                    <input type="text" id="cfg-total-uang" required oninput="this.value = formatRupiahInput(this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="1.000.000">
+                    <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Total Uang Awal (Rp)</label>
+                    <input type="text" id="cfg-total-uang" required oninput="this.value = formatRupiahInput(this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-base sm:text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="1.000.000">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Target Tabungan (Rp)</label>
-                    <input type="text" id="cfg-target-tabungan" required oninput="this.value = formatRupiahInput(this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="500.000">
+                    <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Target Tabungan (Rp)</label>
+                    <input type="text" id="cfg-target-tabungan" required oninput="this.value = formatRupiahInput(this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-base sm:text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="500.000">
                 </div>
-                <div class="pt-2">
-                    <button type="submit" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl transition-colors">
+                <div class="pt-2 pb-4 sm:pb-0">
+                    <button type="submit" class="w-full py-3 sm:py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold rounded-xl transition-all active:scale-98">
                         Simpan Pengaturan
                     </button>
                 </div>
@@ -348,44 +384,49 @@
     </div>
 
     <!-- Modal 2: Catat Transaksi Baru (Simpan / Keluar / Masuk) -->
-    <div id="modal-action" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
-            <button onclick="closeActionModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-200">
+    <!-- Desain Grid Kategori Premium Terintegrasi dengan Desain Ramah Jempol di HP -->
+    <div id="modal-action" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4 transition-all">
+        <div class="bg-slate-900 border-t sm:border border-slate-800 rounded-t-3xl sm:rounded-2xl w-full max-w-md p-6 shadow-2xl relative bottom-sheet max-h-[92vh] flex flex-col overflow-y-auto smooth-scroll">
+            <!-- Mobile Grab Handle Bar -->
+            <div class="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-4 sm:hidden"></div>
+
+            <button onclick="closeActionModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-200 p-1 bg-slate-800/50 sm:bg-transparent rounded-lg">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
-            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2 flex-shrink-0" id="action-modal-title">
+            <h3 class="text-base sm:text-lg font-bold text-white mb-4 flex items-center gap-2 flex-shrink-0" id="action-modal-title">
                 <i data-lucide="plus-circle" class="w-5 h-5 text-emerald-400" id="action-modal-icon"></i>
                 <span id="action-title-text">Catat Pemasukan</span>
             </h3>
-            <form onsubmit="submitTransaction(event)" class="space-y-4 overflow-y-auto pr-1 flex-1">
+            <form onsubmit="submitTransaction(event)" class="space-y-4 flex-1">
                 <input type="hidden" id="action-type">
                 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Jumlah Uang (Rp)</label>
-                    <input type="text" id="action-jumlah" required oninput="this.value = formatRupiahInput(this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="0">
+                    <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Jumlah Uang (Rp)</label>
+                    <!-- Font ukuran text-base (16px) krusial di mobile browser agar layar tidak bergeser otomatis saat keyboard aktif -->
+                    <input type="text" id="action-jumlah" required oninput="this.value = formatRupiahInput(this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-base sm:text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="0">
                 </div>
 
-                <!-- Modern Interactive Categories Area -->
+                <!-- Pemilihan Kategori Grid yang Sangat Modern dan Mudah Di-Tap layaknya aplikasi bawaan handphone -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Pilih Kategori</label>
-                    <div id="category-grid-container" class="grid grid-cols-2 gap-2 max-h-[190px] overflow-y-auto pr-1">
-                        <!-- Populated dynamic grid cards from Javascript -->
+                    <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Pilih Kategori</label>
+                    <div id="category-grid-container" class="grid grid-cols-2 gap-2 max-h-[190px] overflow-y-auto pr-0.5 smooth-scroll">
+                        <!-- Populated dynamic grid cards dari JavaScript -->
                     </div>
                 </div>
 
                 <!-- Input Kategori Kustom jika memilih opsi Lainnya -->
                 <div id="custom-kategori-container" class="hidden">
-                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Nama Kategori Baru</label>
-                    <input type="text" id="action-custom-kategori" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Contoh: Freelance, Obat, dll">
+                    <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Nama Kategori Baru</label>
+                    <input type="text" id="action-custom-kategori" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-base sm:text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Contoh: Freelance, Obat, dll">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Catatan / Keterangan</label>
-                    <input type="text" id="action-catatan" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Keterangan singkat (opsional)">
+                    <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Catatan / Keterangan</label>
+                    <input type="text" id="action-catatan" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-base sm:text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Keterangan singkat (opsional)">
                 </div>
 
-                <div class="pt-2">
-                    <button type="submit" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl transition-colors" id="btn-submit-action">
+                <div class="pt-2 pb-4 sm:pb-0">
+                    <button type="submit" class="w-full py-3 sm:py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold rounded-xl transition-all active:scale-98" id="btn-submit-action">
                         Catat Transaksi
                     </button>
                 </div>
@@ -394,22 +435,25 @@
     </div>
 
     <!-- Modal 3: Konfirmasi Reset (Custom Confirm Modal) -->
-    <div id="modal-confirm-reset" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 shadow-2xl relative">
+    <div id="modal-confirm-reset" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4 transition-all">
+        <div class="bg-slate-900 border-t sm:border border-slate-800 rounded-t-3xl sm:rounded-2xl w-full max-w-sm p-6 shadow-2xl relative bottom-sheet">
+            <!-- Mobile Grab Handle Bar -->
+            <div class="w-12 h-1 bg-slate-700 rounded-full mx-auto mb-4 sm:hidden"></div>
+
             <div class="flex flex-col items-center text-center">
-                <div class="p-4 bg-rose-500/10 text-rose-400 rounded-full mb-4 border border-rose-500/20 animate-pulse">
-                    <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+                <div class="p-3 bg-rose-500/10 text-rose-400 rounded-full mb-3 border border-rose-500/20 animate-bounce">
+                    <i data-lucide="alert-triangle" class="w-6 h-6 sm:w-8 sm:h-8"></i>
                 </div>
-                <h3 class="text-lg font-bold text-white mb-2">Konfirmasi Reset Data</h3>
+                <h3 class="text-base sm:text-lg font-bold text-white mb-2">Konfirmasi Reset Data</h3>
                 <p class="text-xs text-slate-400 mb-6 leading-relaxed">
                     Apakah Anda yakin ingin menghapus seluruh riwayat transaksi dan mengulang siklus keuangan? Tindakan ini <span class="text-rose-400 font-semibold">tidak dapat dibatalkan</span>.
                 </p>
             </div>
-            <div class="flex gap-3">
-                <button onclick="closeResetModal()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition-colors font-semibold text-sm border border-slate-700">
+            <div class="flex gap-3 pb-4 sm:pb-0">
+                <button onclick="closeResetModal()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition-all font-semibold text-xs sm:text-sm border border-slate-700 active:scale-95">
                     Batal
                 </button>
-                <button onclick="executeResetData()" class="flex-1 py-3 bg-rose-500 hover:bg-rose-600 text-white rounded-xl transition-colors font-bold text-sm shadow-lg shadow-rose-500/20">
+                <button onclick="executeResetData()" class="flex-1 py-3 bg-rose-500 hover:bg-rose-600 text-white rounded-xl transition-all font-bold text-xs sm:text-sm shadow-lg shadow-rose-500/20 active:scale-95">
                     Ya, Reset
                 </button>
             </div>
@@ -437,7 +481,7 @@
             simpan: ["Tabungan Utama", "Dana Darurat", "Investasi Masa Depan", "Lainnya"]
         };
 
-        // Lucide Icon mapping for categories to look extremely sleek
+        // Pemetaan Ikon Kategori
         const categoryIcons = {
             "Gaji": "briefcase",
             "Bonus": "sparkles",
@@ -552,10 +596,10 @@
             const sisaHari = config.targetHari - progressHari;
             const sisaHariEl = document.getElementById('disp-sisa-hari');
             if (sisaHari <= 0) {
-                sisaHariEl.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i> Siklus Telah Selesai!`;
+                sisaHariEl.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i> Siklus Selesai!`;
                 if (!dismissBanner) {
                     document.getElementById('target-reached-banner').classList.remove('hidden');
-                    document.getElementById('target-reached-message').textContent = `Siklus ${config.targetHari} hari telah Anda selesaikan sejak ${config.startDate}.`;
+                    document.getElementById('target-reached-message').textContent = `Siklus ${config.targetHari} hari telah diselesaikan sejak ${config.startDate}.`;
                 }
             } else {
                 sisaHariEl.innerHTML = `<i data-lucide="clock" class="w-4 h-4 text-emerald-400"></i> Sisa ${sisaHari} hari lagi`;
@@ -656,11 +700,11 @@
                     const li = document.createElement('li');
                     li.className = "flex items-center justify-between text-xs py-2 px-3 bg-slate-800/40 rounded-xl border border-slate-700/20";
                     li.innerHTML = `
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                            <span class="font-medium text-slate-200">${kat}</span>
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
+                            <span class="font-medium text-slate-200 truncate">${kat}</span>
                         </div>
-                        <span class="font-bold text-emerald-400 font-mono">${formatToRupiah(dataMasuk[kat])}</span>
+                        <span class="font-bold text-emerald-400 font-mono shrink-0 ml-2">${formatToRupiah(dataMasuk[kat])}</span>
                     `;
                     listMasuk.appendChild(li);
                 });
@@ -673,18 +717,18 @@
                     const li = document.createElement('li');
                     li.className = "flex items-center justify-between text-xs py-2 px-3 bg-slate-800/40 rounded-xl border border-slate-700/20";
                     li.innerHTML = `
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-rose-400"></span>
-                            <span class="font-medium text-slate-200">${kat}</span>
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0"></span>
+                            <span class="font-medium text-slate-200 truncate">${kat}</span>
                         </div>
-                        <span class="font-bold text-rose-400 font-mono">${formatToRupiah(dataKeluar[kat])}</span>
+                        <span class="font-bold text-rose-400 font-mono shrink-0 ml-2">${formatToRupiah(dataKeluar[kat])}</span>
                     `;
                     listKeluar.appendChild(li);
                 });
             }
         }
 
-        // Render Riwayat Transaksi (Termasuk tombol Hapus)
+        // Render Riwayat Transaksi (Tombol Hapus Terbuka Secara Default di Layar HP)
         function renderRiwayat() {
             const listRiwayat = document.getElementById('list-riwayat');
             listRiwayat.innerHTML = '';
@@ -705,7 +749,8 @@
 
             sortedTransactions.forEach(t => {
                 const item = document.createElement('div');
-                item.className = "flex items-center justify-between p-3.5 bg-slate-800/40 border border-slate-700/30 rounded-xl hover:border-slate-700 transition-all group";
+                // Kelas `opacity-100 sm:opacity-0` memastikan tombol tempat sampah langsung kelihatan di HP, namun dinamis di Desktop
+                item.className = "flex items-center justify-between p-3 bg-slate-800/40 border border-slate-700/30 rounded-xl hover:border-slate-700 transition-all group";
                 
                 let iconClass = '';
                 let textClass = '';
@@ -730,22 +775,22 @@
                 }
 
                 item.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 rounded-xl border ${iconClass}">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="p-2 rounded-xl border shrink-0 ${iconClass}">
                             <i data-lucide="${iconName}" class="w-4 h-4"></i>
                         </div>
-                        <div>
-                            <div class="flex items-center gap-1.5">
-                                <span class="font-bold text-xs text-slate-200 capitalize">${t.kategori}</span>
-                                <span class="text-[9px] text-slate-500 font-mono">${t.tanggal}</span>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="font-bold text-xs text-slate-200 capitalize truncate max-w-[80px] sm:max-w-none">${t.kategori}</span>
+                                <span class="text-[9px] text-slate-500 font-mono shrink-0">${t.tanggal}</span>
                             </div>
-                            <p class="text-[11px] text-slate-400 italic">${t.catatan || 'Tanpa keterangan'}</p>
+                            <p class="text-[10px] sm:text-[11px] text-slate-400 italic truncate max-w-[130px] sm:max-w-none">${t.catatan || 'Tanpa keterangan'}</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1.5 shrink-0 ml-1">
                         <span class="font-bold font-mono text-xs ${textClass}">${prefix}${formatToRupiah(t.jumlah)}</span>
-                        <button onclick="deleteTransaction('${t.id}')" class="p-1 hover:bg-rose-500/10 text-slate-500 hover:text-rose-400 rounded-lg transition-colors opacity-0 group-hover:opacity-100">
-                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        <button onclick="deleteTransaction('${t.id}')" class="p-2 sm:p-1 hover:bg-rose-500/10 text-slate-400 sm:text-slate-500 hover:text-rose-400 rounded-lg transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100 touch-manipulation">
+                            <i data-lucide="trash-2" class="w-4 h-4 sm:w-3.5 sm:h-3.5"></i>
                         </button>
                     </div>
                 `;
@@ -758,6 +803,42 @@
             saveToLocalStorage();
             updateDashboard();
             showToast('trash-2', 'blue', 'Transaksi Dihapus', 'Data keuangan telah disesuaikan kembali.');
+        }
+
+        // Fungsi petunjuk interaktif saat menekan Card Dashboard
+        function showCycleHint(type) {
+            let label = "";
+            let infoText = "";
+            if (type === 'hari') {
+                label = "Hari Jalan";
+                infoText = "tanggal mulai & durasi siklus";
+            } else if (type === 'saldo') {
+                label = "Saldo Saat Ini";
+                infoText = "total uang awal";
+            } else if (type === 'target') {
+                label = "Target Tabungan";
+                infoText = "nominal target tabungan";
+            }
+
+            // Tampilkan petunjuk via toast
+            showToast('help-circle', 'blue', `Petunjuk Mengubah ${label}`, `Silakan gunakan tombol "Atur Siklus" di kanan atas untuk memperbarui ${infoText}.`);
+
+            // Cari tombol Atur Siklus di header untuk diberikan efek sorotan visual
+            const btn = document.getElementById('btn-atur-siklus');
+            if (btn) {
+                // Berikan efek goyang (bounce), bayangan hijau, dan perbesaran sementara
+                btn.classList.add('animate-bounce', 'ring-2', 'ring-emerald-400', 'scale-105', 'bg-slate-700');
+                
+                // Hapus efek sorotan setelah 3 detik
+                setTimeout(() => {
+                    btn.classList.remove('animate-bounce', 'ring-2', 'ring-emerald-400', 'scale-105', 'bg-slate-700');
+                }, 3000);
+            }
+
+            // Secara otomatis membukakan modal pengaturan siklus setelah delay singkat demi kepraktisan
+            setTimeout(() => {
+                openConfigModal();
+            }, 1200);
         }
 
         // Buka Modal Atur Siklus
@@ -789,10 +870,10 @@
             saveToLocalStorage();
             updateDashboard();
             closeConfigModal();
-            showToast('sliders', 'emerald', 'Konfigurasi Disimpan', 'Target siklus dan keuangan Anda berhasil diperbarui.');
+            showToast('sliders', 'emerald', 'Konfigurasi Disimpan', 'Target siklus dan keuangan berhasil diperbarui.');
         }
 
-        // Get dynamic card style for selected item depending on type
+        // Dapatkan Gaya Kategori Grid yang Aktif Terpilih
         function getActiveCategoryStyle(type) {
             if (type === 'masuk') return 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400 ring-1 ring-emerald-500/30';
             if (type === 'keluar') return 'bg-rose-500/10 border-rose-500/50 text-rose-400 ring-1 ring-rose-500/30';
@@ -800,7 +881,7 @@
             return 'bg-blue-500/10 border-blue-500/50 text-blue-400 ring-1 ring-blue-500/30';
         }
 
-        // Render dynamic grid category selector
+        // Render Selektor Kategori berbentuk Grid Interaktif
         function renderCategoryGrid(type) {
             const container = document.getElementById('category-grid-container');
             container.innerHTML = '';
@@ -810,40 +891,40 @@
                 const isSelected = cat === selectedCategory;
                 const activeStyle = getActiveCategoryStyle(type);
 
-                // Create modern responsive interactive button
+                // Buat tombol tap interaktif
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.onclick = () => selectCategory(cat, type);
-                btn.className = `flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
+                btn.className = `flex items-center gap-2 p-2.5 sm:p-3.5 rounded-xl border text-left transition-all duration-200 cursor-pointer touch-manipulation active:scale-95 ${
                     isSelected 
                         ? activeStyle 
                         : 'bg-slate-950/40 border-slate-800 hover:bg-slate-800/40 hover:border-slate-700 text-slate-400 hover:text-slate-200'
                 }`;
 
-                // Styled icon wrappers
-                let iconWrapperClass = 'p-1.5 rounded-lg bg-slate-800 text-slate-400';
+                // Atur Pembungkus Ikon Aktif/Nonaktif
+                let iconWrapperClass = 'p-1.5 rounded-lg bg-slate-800 text-slate-400 shrink-0';
                 if (isSelected) {
-                    if (type === 'masuk') iconWrapperClass = 'p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400';
-                    if (type === 'keluar') iconWrapperClass = 'p-1.5 rounded-lg bg-rose-500/20 text-rose-400';
-                    if (type === 'simpan') iconWrapperClass = 'p-1.5 rounded-lg bg-amber-500/20 text-amber-400';
+                    if (type === 'masuk') iconWrapperClass = 'p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 shrink-0';
+                    if (type === 'keluar') iconWrapperClass = 'p-1.5 rounded-lg bg-rose-500/20 text-rose-400 shrink-0';
+                    if (type === 'simpan') iconWrapperClass = 'p-1.5 rounded-lg bg-amber-500/20 text-amber-400 shrink-0';
                 }
 
                 btn.innerHTML = `
                     <div class="${iconWrapperClass}">
-                        <i data-lucide="${icon}" class="w-4 h-4"></i>
+                        <i data-lucide="${icon}" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     </div>
-                    <span class="text-xs font-bold tracking-wide">${cat}</span>
+                    <span class="text-[11px] sm:text-xs font-bold tracking-wide truncate">${cat}</span>
                 `;
 
                 container.appendChild(btn);
             });
 
-            // Re-render Lucide icons inside the dynamically created nodes
+            // Muat ulang ikon dalam kontainer
             lucide.createIcons();
             toggleCustomKategori();
         }
 
-        // Handle category card click event
+        // Tangani klik kategori
         function selectCategory(cat, type) {
             selectedCategory = cat;
             renderCategoryGrid(type);
@@ -856,7 +937,7 @@
             const iconEl = document.getElementById('action-modal-icon');
             const typeInput = document.getElementById('action-type');
             
-            // Reset input fields
+            // Atur ulang isian
             document.getElementById('action-jumlah').value = '';
             document.getElementById('action-catatan').value = '';
             document.getElementById('action-custom-kategori').value = '';
@@ -864,10 +945,10 @@
 
             typeInput.value = type;
 
-            // Set dynamic selected category to first option
+            // Tentukan kategori aktif pertama kali sesuai default array
             selectedCategory = categories[type][0];
 
-            // Atur Header Modal Sesuai Jenis Transaksi
+            // Tentukan Header Modal
             if (type === 'masuk') {
                 titleEl.textContent = 'Catat Pemasukan';
                 iconEl.setAttribute('data-lucide', 'plus-circle');
@@ -882,10 +963,9 @@
                 iconEl.className = 'w-5 h-5 text-amber-400';
             }
 
-            // Render modern grid layout categories
+            // Render grid kategori
             renderCategoryGrid(type);
 
-            // Tampilkan Modal
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             lucide.createIcons();
@@ -897,7 +977,7 @@
             modal.classList.add('hidden');
         }
 
-        // Menampilkan textfield tambahan jika kategori adalah "Lainnya"
+        // Tampilkan kotak teks tambahan jika kategori "Lainnya" dipilih
         function toggleCustomKategori() {
             const container = document.getElementById('custom-kategori-container');
             const customInput = document.getElementById('action-custom-kategori');
@@ -912,7 +992,7 @@
             }
         }
 
-        // Submit Catatan Transaksi Baru
+        // Simpan Transaksi Baru
         function submitTransaction(e) {
             e.preventDefault();
             const type = document.getElementById('action-type').value;
@@ -924,11 +1004,11 @@
             const kategori = (selectKategori === 'Lainnya' && customKategori) ? customKategori : selectKategori;
 
             if (jumlah <= 0) {
-                showToast('alert-triangle', 'rose', 'Gagal Mencatat', 'Jumlah uang yang dimasukkan harus lebih dari 0.');
+                showToast('alert-triangle', 'rose', 'Gagal Mencatat', 'Jumlah uang harus lebih dari 0.');
                 return;
             }
 
-            // Validasi sisa saldo untuk pengeluaran atau menabung
+            // Validasi sisa saldo dompet utama
             if (type === 'keluar' || type === 'simpan') {
                 let curMasuk = 0, curKeluar = 0, curSimpan = 0;
                 transactions.forEach(t => {
@@ -939,12 +1019,12 @@
                 const saldoTersedia = cleanRupiah(config.totalUangAwal) + curMasuk - curKeluar - curSimpan;
 
                 if (jumlah > saldoTersedia) {
-                    showToast('alert-triangle', 'rose', 'Saldo Tidak Cukup', `Transaksi gagal. Sisa saldo Anda saat ini adalah ${formatToRupiah(saldoTersedia)}.`);
+                    showToast('alert-triangle', 'rose', 'Saldo Tidak Cukup', `Sisa saldo Anda hanya ${formatToRupiah(saldoTersedia)}.`);
                     return;
                 }
             }
 
-            // Catat Transaksi Baru
+            // Buat objek transaksi baru
             const now = new Date();
             const formatTanggal = `${now.getDate()}/${now.getMonth() + 1} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
@@ -962,9 +1042,9 @@
             updateDashboard();
             closeActionModal();
 
-            // Toast feedback
+            // Set up notifikasi sukses
             let toastTitle = 'Transaksi Berhasil';
-            let toastMsg = `Berhasil mencatat transaksi sebesar ${formatToRupiah(jumlah)}`;
+            let toastMsg = `Mencatat transaksi sebesar ${formatToRupiah(jumlah)}`;
             let toastIcon = 'check-circle';
             let toastColor = 'emerald';
 
@@ -985,7 +1065,7 @@
             showToast(toastIcon, toastColor, toastTitle, toastMsg);
         }
 
-        // Sistem Notification Toast Kustom
+        // Notification Toast Kustom
         function showToast(icon, color, title, msg) {
             const toast = document.getElementById('toast');
             const toastIconBg = document.getElementById('toast-icon-bg');
@@ -993,24 +1073,24 @@
             const toastTitle = document.getElementById('toast-title');
             const toastMsg = document.getElementById('toast-message');
 
-            toast.className = `mb-6 p-4 rounded-xl border flex items-center justify-between transition-all duration-300`;
+            toast.className = `mb-4 sm:mb-6 p-3.5 rounded-xl border flex items-center justify-between gap-3 transition-all duration-300`;
             if (color === 'emerald') {
                 toast.classList.add('bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-400');
-                toastIconBg.className = 'p-2 rounded-lg bg-emerald-500/20 text-emerald-400';
+                toastIconBg.className = 'p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400';
             } else if (color === 'rose') {
                 toast.classList.add('bg-rose-500/10', 'border-rose-500/30', 'text-rose-400');
-                toastIconBg.className = 'p-2 rounded-lg bg-rose-500/20 text-rose-400';
+                toastIconBg.className = 'p-1.5 rounded-lg bg-rose-500/20 text-rose-400';
             } else if (color === 'amber') {
                 toast.classList.add('bg-amber-500/10', 'border-amber-500/30', 'text-amber-400');
-                toastIconBg.className = 'p-2 rounded-lg bg-amber-500/20 text-amber-400';
+                toastIconBg.className = 'p-1.5 rounded-lg bg-amber-500/20 text-amber-400';
             } else {
                 toast.classList.add('bg-blue-500/10', 'border-blue-500/30', 'text-blue-400');
-                toastIconBg.className = 'p-2 rounded-lg bg-blue-500/20 text-blue-400';
+                toastIconBg.className = 'p-1.5 rounded-lg bg-blue-500/20 text-blue-400';
             }
 
             toastIcon.setAttribute('data-lucide', icon);
             toastTitle.textContent = title;
-            toastTitle.className = 'font-bold text-sm text-white';
+            toastTitle.className = 'font-bold text-xs sm:text-sm text-white';
             toastMsg.textContent = msg;
 
             toast.classList.remove('hidden');
@@ -1025,14 +1105,14 @@
             document.getElementById('toast').classList.add('hidden');
         }
 
-        // Dismiss Warning Banner Hari Selesai
+        // Hilangkan Banner Target Hari
         function dismissTargetBanner() {
             dismissBanner = true;
             localStorage.setItem('arvio_dismiss_banner', JSON.stringify(dismissBanner));
             document.getElementById('target-reached-banner').classList.add('hidden');
         }
 
-        // Buka modal kustom konfirmasi reset
+        // Panggil modal kustom konfirmasi reset (Sesuai Aturan: No native confirm dialogs)
         function resetData() {
             const modal = document.getElementById('modal-confirm-reset');
             modal.classList.remove('hidden');
@@ -1040,14 +1120,13 @@
             lucide.createIcons();
         }
 
-        // Tutup modal kustom konfirmasi reset
         function closeResetModal() {
             const modal = document.getElementById('modal-confirm-reset');
             modal.classList.remove('flex');
             modal.classList.add('hidden');
         }
 
-        // Eksekusi reset data jika pengguna menekan tombol "Ya, Reset"
+        // Eksekusi reset data
         function executeResetData() {
             transactions = [];
             config = {
@@ -1060,7 +1139,7 @@
             saveToLocalStorage();
             updateDashboard();
             closeResetModal();
-            showToast('rotate-ccw', 'rose', 'Sistem Direset', 'Semua data transaksi dan konfigurasi awal telah dibersihkan.');
+            showToast('rotate-ccw', 'rose', 'Sistem Direset', 'Seluruh data transaksi dan konfigurasi awal telah dibersihkan.');
         }
     </script>
 </body>
